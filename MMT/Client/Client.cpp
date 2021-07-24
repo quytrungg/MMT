@@ -15,8 +15,8 @@
 #pragma comment (lib, "AdvApi32.lib")
 
 
-#define DEFAULT_BUFLEN 512
-#define DEFAULT_PORT "27015"
+#define DEFAULT_BUFLEN 1024
+#define DEFAULT_PORT "2000"
 
 int __cdecl main(int argc, char** argv)
 {
@@ -125,4 +125,3 @@ int __cdecl main(int argc, char** argv)
 
     return 0;
 }
-
