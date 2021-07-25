@@ -113,8 +113,7 @@ std::wstring takeAPI(HINTERNET connectToServer) {
     return result;
 }
 
-void refreshData(HINTERNET connectToServer) {
-    std::wstring noti = L"//api/v2/gold/pnj?api_key=";
+void refreshData(HINTERNET connectToServer, std::wstring noti) {
     noti += API_KEY;
     HINTERNET hiRequest = WinHttpOpenRequest(connectToServer, L"GET", noti.c_str(), NULL, WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, WINHTTP_FLAG_SECURE);
     bool hiResult = WinHttpSendRequest(hiRequest, WINHTTP_NO_ADDITIONAL_HEADERS, 0, WINHTTP_NO_REQUEST_DATA, 0, 0, 0);
@@ -155,10 +154,13 @@ void refreshData(HINTERNET connectToServer) {
     }
     if (result.find("Auth Error:") != -1) {
         API_KEY = takeAPI(connectToServer);
-        refreshData(connectToServer);
+        refreshData(connectToServer, noti);
         return;
     }
+    std::fstream f("gold.txt", std::fstream::app);
     std::cout << result;
+    f << result;
+    f.close();
 }
 
 int server() {
@@ -294,7 +296,9 @@ int __cdecl main(void){
     if (hiSession) {
         hiConnect = WinHttpConnect(hiSession, L"vapi.vnappmob.com", INTERNET_DEFAULT_HTTPS_PORT, 0);
     }
-    refreshData(hiConnect);
+    refreshData(hiConnect, L"//api/v2/gold/doji?api_key=");
+    refreshData(hiConnect, L"//api/v2/gold/sjc?api_key=");
+    refreshData(hiConnect, L"//api/v2/gold/pnj?api_key=");
 
     if (hiRequest) {
         WinHttpCloseHandle(hiRequest);
