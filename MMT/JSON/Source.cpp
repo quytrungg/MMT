@@ -2,6 +2,9 @@
 #include <fstream>
 #include "rapidjson/document.h"
 #include <string>
+#include <chrono>
+#include <ctime> 
+#pragma warning(disable:4996)
 
 using namespace rapidjson;
 
@@ -18,41 +21,56 @@ int countFileLine(std::string filename) {
 }
 
 int main() {
+	//Get the latest gold update by count until the last 3 lines
 	std::string information;
 	int n = countFileLine("gold.txt");
-
 	std::fstream f("gold.txt", std::fstream::in);
 	if (!f) {
 		std::cout << "Can't open file!";
 		return 0;
 	}
-	
 	std::string temp;
-	for (int i = 0; i < 3; i++) {
+	for (int i = 0; i < n - 3; i++) {
 		std::getline(f, temp, '\n');
 	}
 
+	//Get the choice from client
+	int choice = 0;
 	std::getline(std::cin, temp, '\n');
-
+	if (temp.compare("doji") == 0 || temp.compare("DOJI") == 0) {
+		choice = 1;
+	}
+	else if (temp.compare("sjc") == 0 || temp.compare("SJC") == 0) {
+		choice = 2;
+	}
+	else if (temp.compare("pnj") == 0 || temp.compare("PNJ") == 0) {
+		choice = 3;
+	}
+	
+	//Server gives response to client
 	Document* d = new Document[3];
 	for(int i = 0; i < 3; i++) {
 		std::getline(f, information, '\n');
 		d[i].Parse(information.c_str());
 		for (auto& error : d[i]["results"].GetArray()) {
 			for (auto& m : error.GetObject()) {
-				/*if (strcmp(m.name.GetString(), "datetime") == 0) {
-					std::cout << m.name.GetString() << ": " << m.value.GetString() << std::endl;
-				}
-				else {
-					std::cout << m.name.GetString() << ": " << (double)m.value.GetDouble() << std::endl;
-				}*/
-				if (strcmp(m.name.GetString(), temp.c_str()) == 0) {
-					std::cout << m.name.GetString() << ": " << (double)m.value.GetDouble() << std::endl;
+				if (i + 1 == choice) {
+					if (strcmp(m.name.GetString(), "datetime") == 0) {
+						std::cout << m.name.GetString() << ": " << m.value.GetString() << std::endl;
+					}
+					else {
+						std::cout << m.name.GetString() << ": " << (double)m.value.GetDouble() << std::endl;
+					}
 				}
 			}
 		}
-		std::cout << "\n";
 	}
+
+	//Get date & time
+	auto end = std::chrono::system_clock::now();
+	std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+	std::string time = std::ctime(&end_time);
+	std::cout << "\n" << time;
 
 	f.close();
 	return 0;
