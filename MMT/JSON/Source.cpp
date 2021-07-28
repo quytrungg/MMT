@@ -31,8 +31,8 @@ int main() {
 		std::getline(std::cin, temp, '\n');
 
 		//Get the latest gold update by count until the last 3 lines
-		int n = countFileLine(temp + ".txt");
-		std::fstream f(temp + ".txt", std::fstream::in);
+		int n = countFileLine(temp + ".json");
+		std::fstream f(temp + ".json", std::fstream::in);
 		if (!f) {
 			if (temp.compare("exit") == 0) return 0;
 			std::cout << "Can't open file!\n";
@@ -71,7 +71,8 @@ int main() {
 				for (auto& m : error.GetObject()) {
 					if (i + 1 == choice) {
 						if (strcmp(m.name.GetString(), "datetime") == 0) {
-							std::cout << m.name.GetString() << ": " << m.value.GetString() << std::endl;
+							d[i].RemoveMember("datetime");
+							//std::cout << m.name.GetString() << ": " << m.value.GetString() << std::endl;
 						}
 						else {
 							std::cout << m.name.GetString() << ": " << (double)m.value.GetDouble() << std::endl;

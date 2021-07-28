@@ -174,7 +174,7 @@ void requestData(HINTERNET connectToServer, std::wstring noti) {
         ss << now->tm_year + 1900 << '-' << now->tm_mon + 1 << '-' << now->tm_mday;
     }
     std::string temp = ss.str();
-    std::fstream f(temp + ".txt", std::fstream::app);
+    std::fstream f(temp + ".json", std::fstream::app);
     std::cout << result;
     f << result;
     f.close();
@@ -314,9 +314,12 @@ int __cdecl main(void){
     if (hiSession) {
         hiConnect = WinHttpConnect(hiSession, L"vapi.vnappmob.com", INTERNET_DEFAULT_HTTPS_PORT, 0);
     }
-    requestData(hiConnect, L"//api/v2/gold/doji?api_key=");
-    requestData(hiConnect, L"//api/v2/gold/sjc?api_key=");
-    requestData(hiConnect, L"//api/v2/gold/pnj?api_key=");
+    while (true) {
+        requestData(hiConnect, L"//api/v2/gold/doji?api_key=");
+        requestData(hiConnect, L"//api/v2/gold/sjc?api_key=");
+        requestData(hiConnect, L"//api/v2/gold/pnj?api_key=");
+        Sleep(1800000);
+    }
     std::cout << "Update completed!";
     if (hiRequest) {
         WinHttpCloseHandle(hiRequest);
