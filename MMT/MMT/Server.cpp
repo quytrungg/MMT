@@ -4,9 +4,8 @@
 
 #include <iostream>
 #include <windows.h>
-#include <Windows.h>
 #include <WinSock2.h>
-#include <cstring>
+#include <string>
 #include <WS2tcpip.h>
 #include <thread>
 #include <sstream>
@@ -14,18 +13,22 @@
 #include <fstream>
 #include <sql.h>
 #include <windows.data.json.h>
+#include <ctime>
+#include <sstream>
 
 #define DEFAULT_BUFLEN 1024
 #define DEFAULT_PORT "2000"
+#pragma warning(disable:4996)
 
 // Need to link with Ws2_32.lib
 #pragma comment (lib, "Ws2_32.lib")
 // #pragma comment (lib, "Mswsock.lib")
 #pragma comment (lib, "winhttp.lib")
 
-
+//Overall variable
 std::wstring API_KEY = L"";
 
+//Struct
 struct Account {
     std::string username;
     std::string password;
@@ -45,12 +48,14 @@ void accountConnect(Account* acc) {
 bool updateStatus = false;
 Account* activeAccount = nullptr;
 
+//Activate an account
 void activateAccount(std::string username, std::string password, int sock_cli) {
     activeAccount = new Account{ username, password, sock_cli, std::thread(), true, activeAccount };
     activeAccount->process = std::thread(accountConnect, activeAccount);
     activeAccount->process.detach();
 }
 
+//Deactivate an account
 void deactivateAccount(std::string username) {
     Account* temp = new Account;
     temp->next = activeAccount;
@@ -70,6 +75,7 @@ void deactivateAccount(std::string username) {
     return;
 }
 
+//Take the API from third party
 std::wstring takeAPI(HINTERNET connectToServer) {
     std::wstring noti = L"/api/request_api_key?scope=gold";
     std::string temp = "";
@@ -113,7 +119,8 @@ std::wstring takeAPI(HINTERNET connectToServer) {
     return result;
 }
 
-void refreshData(HINTERNET connectToServer, std::wstring noti) {
+//Get the JSON file from third party
+void requestData(HINTERNET connectToServer, std::wstring noti) {
     noti += API_KEY;
     HINTERNET hiRequest = WinHttpOpenRequest(connectToServer, L"GET", noti.c_str(), NULL, WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, WINHTTP_FLAG_SECURE);
     bool hiResult = WinHttpSendRequest(hiRequest, WINHTTP_NO_ADDITIONAL_HEADERS, 0, WINHTTP_NO_REQUEST_DATA, 0, 0, 0);
@@ -154,15 +161,26 @@ void refreshData(HINTERNET connectToServer, std::wstring noti) {
     }
     if (result.find("Auth Error:") != -1) {
         API_KEY = takeAPI(connectToServer);
-        refreshData(connectToServer, noti);
+        requestData(connectToServer, noti);
         return;
     }
-    std::fstream f("gold.txt", std::fstream::app);
+    time_t t = time(0);
+    struct tm* now = localtime(&t);
+    std::stringstream ss;
+    if (now->tm_mon + 1 < 10) {
+        ss << now->tm_year + 1900 << "-0" << now->tm_mon + 1 << '-' << now->tm_mday;
+    }
+    else {
+        ss << now->tm_year + 1900 << '-' << now->tm_mon + 1 << '-' << now->tm_mday;
+    }
+    std::string temp = ss.str();
+    std::fstream f(temp + ".txt", std::fstream::app);
     std::cout << result;
     f << result;
     f.close();
 }
 
+//Server code
 int server() {
     // Initialize Socket
     WSADATA wsaData;
@@ -286,8 +304,8 @@ int server() {
     WSACleanup();
 }
 
+//main
 int __cdecl main(void){
-   
     DWORD dwSize = 0, dwPull = 0;
     BOOL hiResult = FALSE;
     LPSTR dwBuffer;
@@ -296,10 +314,10 @@ int __cdecl main(void){
     if (hiSession) {
         hiConnect = WinHttpConnect(hiSession, L"vapi.vnappmob.com", INTERNET_DEFAULT_HTTPS_PORT, 0);
     }
-    refreshData(hiConnect, L"//api/v2/gold/doji?api_key=");
-    refreshData(hiConnect, L"//api/v2/gold/sjc?api_key=");
-    refreshData(hiConnect, L"//api/v2/gold/pnj?api_key=");
-
+    requestData(hiConnect, L"//api/v2/gold/doji?api_key=");
+    requestData(hiConnect, L"//api/v2/gold/sjc?api_key=");
+    requestData(hiConnect, L"//api/v2/gold/pnj?api_key=");
+    std::cout << "Update completed!";
     if (hiRequest) {
         WinHttpCloseHandle(hiRequest);
     }
@@ -309,7 +327,6 @@ int __cdecl main(void){
     if (hiSession) {
         WinHttpCloseHandle(hiSession);
     }
-
     return 0;
 }
 
