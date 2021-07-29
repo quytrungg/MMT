@@ -175,7 +175,6 @@ void requestData(HINTERNET connectToServer, std::wstring noti) {
     }
     std::string temp = ss.str();
     std::fstream f(temp + ".json", std::fstream::app);
-    std::cout << result;
     f << result;
     f.close();
 }
@@ -306,6 +305,8 @@ int server() {
 
 //main
 int __cdecl main(void){
+    time_t t = time(0);
+    struct tm* now = localtime(&t);
     DWORD dwSize = 0, dwPull = 0;
     BOOL hiResult = FALSE;
     LPSTR dwBuffer;
@@ -318,9 +319,9 @@ int __cdecl main(void){
         requestData(hiConnect, L"//api/v2/gold/doji?api_key=");
         requestData(hiConnect, L"//api/v2/gold/sjc?api_key=");
         requestData(hiConnect, L"//api/v2/gold/pnj?api_key=");
+        std::cout << "Update completed: " << now->tm_hour << "h" << now->tm_min << "\n";
         Sleep(1800000);
     }
-    std::cout << "Update completed!";
     if (hiRequest) {
         WinHttpCloseHandle(hiRequest);
     }
