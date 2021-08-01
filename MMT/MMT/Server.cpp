@@ -17,7 +17,6 @@
 #include <sstream>
 #include "rapidjson/document.h"
 
-
 #define DEFAULT_BUFLEN 1024
 #define DEFAULT_PORT "2000"
 #pragma warning(disable:4996)
@@ -83,15 +82,15 @@ void deactivateAccount(std::string username) {
 std::wstring takeAPI(HINTERNET connectToServer) {
     std::wstring noti = L"/api/request_api_key?scope=gold";
     std::string temp = "";
-    HINTERNET hiRequest = WinHttpOpenRequest(connectToServer, L"GET", noti.c_str(), NULL, WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, WINHTTP_FLAG_SECURE);
-    bool hiResult = WinHttpSendRequest(hiRequest, WINHTTP_NO_ADDITIONAL_HEADERS, 0, WINHTTP_NO_REQUEST_DATA, 0, 0, 0);
-    bool hiResponse = WinHttpReceiveResponse(hiRequest, NULL);
+    HINTERNET hinRequest = WinHttpOpenRequest(connectToServer, L"GET", noti.c_str(), NULL, WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, WINHTTP_FLAG_SECURE);
+    bool hinResult = WinHttpSendRequest(hinRequest, WINHTTP_NO_ADDITIONAL_HEADERS, 0, WINHTTP_NO_REQUEST_DATA, 0, 0, 0);
+    bool hinResponse = WinHttpReceiveResponse(hinRequest, NULL);
     DWORD dwSize = 0, dwPull = 0;
     char* dwBuffer;
-    if (hiResponse) {
+    if (hinResponse) {
         do {
             dwSize = 0;
-            if (!WinHttpQueryDataAvailable(hiRequest, &dwSize)) {
+            if (!WinHttpQueryDataAvailable(hinRequest, &dwSize)) {
                 std::cout << "Error " << GetLastError() << " query data unavailable!\n";
             }
             dwBuffer = new char[dwSize + 1];
@@ -101,7 +100,7 @@ std::wstring takeAPI(HINTERNET connectToServer) {
             }
             else{
                 ZeroMemory(dwBuffer, dwSize + 1);
-                if (!WinHttpReadData(hiRequest, (LPVOID)dwBuffer, dwSize, &dwPull)) {
+                if (!WinHttpReadData(hinRequest, (LPVOID)dwBuffer, dwSize, &dwPull)) {
                     std::cout << "Error " << GetLastError() << " winhttp can't read data!\n";
                 }
                 else {
@@ -111,8 +110,8 @@ std::wstring takeAPI(HINTERNET connectToServer) {
             }
         } while (dwSize > 0);
     }
-    if (hiRequest) {
-        WinHttpCloseHandle(hiRequest);
+    if (hinRequest) {
+        WinHttpCloseHandle(hinRequest);
     }
     std::wstring result = L"";
     if (temp != "") {
@@ -126,19 +125,19 @@ std::wstring takeAPI(HINTERNET connectToServer) {
 //Get the JSON file from third party
 void requestData(HINTERNET connectToServer, std::wstring noti) {
     noti += API_KEY;
-    HINTERNET hiRequest = WinHttpOpenRequest(connectToServer, L"GET", noti.c_str(), NULL, WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, WINHTTP_FLAG_SECURE);
-    bool hiResult = WinHttpSendRequest(hiRequest, WINHTTP_NO_ADDITIONAL_HEADERS, 0, WINHTTP_NO_REQUEST_DATA, 0, 0, 0);
-    if (hiResult) {
-        hiResult = WinHttpReceiveResponse(hiRequest, NULL);
+    HINTERNET hinRequest = WinHttpOpenRequest(connectToServer, L"GET", noti.c_str(), NULL, WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, WINHTTP_FLAG_SECURE);
+    bool hinResult = WinHttpSendRequest(hinRequest, WINHTTP_NO_ADDITIONAL_HEADERS, 0, WINHTTP_NO_REQUEST_DATA, 0, 0, 0);
+    if (hinResult) {
+        hinResult = WinHttpReceiveResponse(hinRequest, NULL);
     }
     std::string result = "";
     DWORD dwSize = 0, dwPull = 0;
     char* dwBuffer;
-    if (hiResult) {
+    if (hinResult) { 
         do {
             dwSize = 0;
-            if (!WinHttpQueryDataAvailable(hiRequest, &dwSize)) {
-                std::cout << "Error " << GetLastError() << " query data unavailable!\n";
+            if (!WinHttpQueryDataAvailable(hinRequest, &dwSize)) {
+                std::cout << "Error " << GetLastError() << ": query data unavailable!\n";
             }
             dwBuffer = new char[dwSize + 1];
             if (!dwBuffer) {
@@ -147,8 +146,8 @@ void requestData(HINTERNET connectToServer, std::wstring noti) {
             }
             else {
                 ZeroMemory(dwBuffer, dwSize + 1);
-                if (!WinHttpReadData(hiRequest, (LPVOID)dwBuffer, dwSize, &dwPull)) {
-                    std::cout << "Error " << GetLastError() << " winhttp can't read data!\n";
+                if (!WinHttpReadData(hinRequest, (LPVOID)dwBuffer, dwSize, &dwPull)) {
+                    std::cout << "Error " << GetLastError() << ": winhttp can't read data!\n";
                 }
                 else {
                     result += dwBuffer;
@@ -157,11 +156,11 @@ void requestData(HINTERNET connectToServer, std::wstring noti) {
             }
         } while (dwSize > 0);
     }
-    if (!hiResult) {
+    if (!hinResult) {
         std::cout << "Error " << GetLastError() << " has occured!\n";
     }
-    if (hiRequest) {
-        WinHttpCloseHandle(hiRequest);
+    if (hinRequest) {
+        WinHttpCloseHandle(hinRequest);
     }
     if (result.find("Auth Error:") != -1) {
         API_KEY = takeAPI(connectToServer);
@@ -172,13 +171,15 @@ void requestData(HINTERNET connectToServer, std::wstring noti) {
     struct tm* now = localtime(&t);
     std::stringstream ss;
     if (now->tm_mon + 1 < 10) {
-        ss << now->tm_year + 1900 << "-0" << now->tm_mon + 1 << '-' << now->tm_mday;
+        if(now->tm_mday > 10) ss << now->tm_year + 1900 << "-0" << now->tm_mon + 1 << "-" << now->tm_mday;
+        else ss << now->tm_year + 1900 << "-0" << now->tm_mon + 1 << "-0" << now->tm_mday;
     }
     else {
-        ss << now->tm_year + 1900 << '-' << now->tm_mon + 1 << '-' << now->tm_mday;
+        if(now->tm_mday > 10) ss << now->tm_year + 1900 << '-' << now->tm_mon + 1 << '-' << now->tm_mday;
+        else ss << now->tm_year + 1900 << '-' << now->tm_mon + 1 << "-0" << now->tm_mday;
     }
     std::string temp = ss.str();
-    std::fstream f(temp + ".json", std::fstream::app);
+    std::fstream f("GoldData/" + temp + ".json", std::fstream::app);
     f << result;
     f.close();
 }
@@ -322,6 +323,35 @@ int countFileLine(std::string filename) {
     return n;
 }
 
+void extractgold() {
+    time_t t = time(0);
+    struct tm* now = localtime(&t);
+    DWORD dwSize = 0, dwPull = 0;
+    BOOL hinResult = FALSE;
+    LPSTR dwBuffer;
+    HINTERNET hiSession = NULL, hinRequest = NULL, hiConnect = NULL;
+    hiSession = WinHttpOpen(L"WinHTTP Test/2.0", WINHTTP_ACCESS_TYPE_AUTOMATIC_PROXY, WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
+    if (hiSession) {
+        hiConnect = WinHttpConnect(hiSession, L"vapi.vnappmob.com", INTERNET_DEFAULT_HTTPS_PORT, 0);
+    }
+    while (true) {
+        requestData(hiConnect, L"//api/v2/gold/doji?api_key=");
+        requestData(hiConnect, L"//api/v2/gold/sjc?api_key=");
+        requestData(hiConnect, L"//api/v2/gold/pnj?api_key=");
+        std::cout << "Update completed: " << now->tm_hour << "h" << now->tm_min << "\n";
+        Sleep(1800000);
+    }
+    if (hinRequest) {
+        WinHttpCloseHandle(hinRequest);
+    }
+    if (hiConnect) {
+        WinHttpCloseHandle(hiConnect);
+    }
+    if (hiSession) {
+        WinHttpCloseHandle(hiSession);
+    }
+}
+
 void trackgold() {
     std::string temp, information;
     do {
@@ -329,8 +359,8 @@ void trackgold() {
         std::getline(std::cin, temp, '\n');
 
         //Get the latest gold update by count until the last 3 lines
-        int n = countFileLine(temp + ".json");
-        std::fstream f(temp + ".json", std::fstream::in);
+        int n = countFileLine("GoldData/" + temp + ".json");
+        std::fstream f("GoldData/" + temp + ".json", std::fstream::in);
         if (!f) {
             if (temp.compare("exit") == 0) return;
             std::cout << "Can't open file!\n";
@@ -387,32 +417,10 @@ void trackgold() {
 
 //main
 int __cdecl main(void){
-    /*time_t t = time(0);
-    struct tm* now = localtime(&t);
-    DWORD dwSize = 0, dwPull = 0;
-    BOOL hiResult = FALSE;
-    LPSTR dwBuffer;
-    HINTERNET hiSession = NULL, hiRequest = NULL, hiConnect = NULL;
-    hiSession = WinHttpOpen(L"WinHTTP Test/2.0", WINHTTP_ACCESS_TYPE_AUTOMATIC_PROXY, WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
-    if (hiSession) {
-        hiConnect = WinHttpConnect(hiSession, L"vapi.vnappmob.com", INTERNET_DEFAULT_HTTPS_PORT, 0);
-    }
-    while (true) {
-        requestData(hiConnect, L"//api/v2/gold/doji?api_key=");
-        requestData(hiConnect, L"//api/v2/gold/sjc?api_key=");
-        requestData(hiConnect, L"//api/v2/gold/pnj?api_key=");
-        std::cout << "Update completed: " << now->tm_hour << "h" << now->tm_min << "\n";
-        Sleep(1800000);
-    }
-    if (hiRequest) {
-        WinHttpCloseHandle(hiRequest);
-    }
-    if (hiConnect) {
-        WinHttpCloseHandle(hiConnect);
-    }
-    if (hiSession) {
-        WinHttpCloseHandle(hiSession);
-    }*/
+    
+    _wmkdir(L"GoldData");
+
+    //extractgold();
 
     trackgold();
 
