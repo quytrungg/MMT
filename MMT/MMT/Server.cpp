@@ -391,6 +391,7 @@ void trackgold() {
         }
 
         //Server gives response to client
+        int flag = 0;
         Document* d = new Document[3];
         for (int i = 0; i < 3; i++) {
             std::getline(f, information, '\n');
@@ -405,14 +406,20 @@ void trackgold() {
                         }
                         else {
                             double e = m.value.GetDouble();
-                            std::cout << m.name.GetString() << ": " << std::setprecision(2) << std::fixed << e << std::endl;
+                            std::string name = m.name.GetString();
+                            for (int i = 0; i < name.length(); i++) name[i] = toupper(name[i]);
+                            std::cout << name << ": " << std::setprecision(2) << std::fixed << e << std::endl;
+                            flag = i;
                         }
                     }
                 }
             }
         }
+        std::cout << d[flag]["results"][0].MemberCount() - 1 << "\n";
         std::cout << "\n";
-        delete[] d;
+        for (int i = 0; i < 3; i++) {
+            d[i].GetAllocator().~MemoryPoolAllocator();
+        }
         f.close();
     } while (date.compare("exit") != 0);
 }
