@@ -16,6 +16,7 @@
 #include <ctime>
 #include <sstream>
 #include "rapidjson/document.h"
+#include <iomanip>
 
 #define DEFAULT_BUFLEN 1024
 #define DEFAULT_PORT "2000"
@@ -329,10 +330,10 @@ void extractgold() {
     DWORD dwSize = 0, dwPull = 0;
     BOOL hinResult = FALSE;
     LPSTR dwBuffer;
-    HINTERNET hiSession = NULL, hinRequest = NULL, hiConnect = NULL;
-    hiSession = WinHttpOpen(L"WinHTTP Test/2.0", WINHTTP_ACCESS_TYPE_AUTOMATIC_PROXY, WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
-    if (hiSession) {
-        hiConnect = WinHttpConnect(hiSession, L"vapi.vnappmob.com", INTERNET_DEFAULT_HTTPS_PORT, 0);
+    HINTERNET hinSession = NULL, hinRequest = NULL, hiConnect = NULL;
+    hinSession = WinHttpOpen(L"WinHTTP Test/2.0", WINHTTP_ACCESS_TYPE_AUTOMATIC_PROXY, WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
+    if (hinSession) {
+        hiConnect = WinHttpConnect(hinSession, L"vapi.vnappmob.com", INTERNET_DEFAULT_HTTPS_PORT, 0);
     }
     while (true) {
         requestData(hiConnect, L"//api/v2/gold/doji?api_key=");
@@ -347,41 +348,41 @@ void extractgold() {
     if (hiConnect) {
         WinHttpCloseHandle(hiConnect);
     }
-    if (hiSession) {
-        WinHttpCloseHandle(hiSession);
+    if (hinSession) {
+        WinHttpCloseHandle(hinSession);
     }
 }
 
 void trackgold() {
-    std::string temp, information;
+    std::string date, information;
     do {
         std::cout << "Choose your date (yyyy-mm-dd): ";
-        std::getline(std::cin, temp, '\n');
+        std::getline(std::cin, date, '\n');
 
         //Get the latest gold update by count until the last 3 lines
-        int n = countFileLine("GoldData/" + temp + ".json");
-        std::fstream f("GoldData/" + temp + ".json", std::fstream::in);
+        int n = countFileLine("GoldData/" + date + ".json");
+        std::fstream f("GoldData/" + date + ".json", std::fstream::in);
         if (!f) {
-            if (temp.compare("exit") == 0) return;
+            if (date.compare("exit") == 0) return;
             std::cout << "Can't open file!\n";
             continue;
         }
         for (int i = 0; i < n - 3; i++) {
-            std::getline(f, temp, '\n');
+            std::getline(f, date, '\n');
         }
 
         //Choose gold type
         int choice = 0;
         std::cout << "Choose your gold type (DOJI, SJC, PNJ): ";
-        std::getline(std::cin, temp, '\n');
+        std::getline(std::cin, date, '\n');
         std::cout << "\n";
-        if (temp.compare("doji") == 0 || temp.compare("DOJI") == 0) {
+        if (date.compare("doji") == 0 || date.compare("DOJI") == 0) {
             choice = 1;
         }
-        else if (temp.compare("sjc") == 0 || temp.compare("SJC") == 0) {
+        else if (date.compare("sjc") == 0 || date.compare("SJC") == 0) {
             choice = 2;
         }
-        else if (temp.compare("pnj") == 0 || temp.compare("PNJ") == 0) {
+        else if (date.compare("pnj") == 0 || date.compare("PNJ") == 0) {
             choice = 3;
         }
         else {
@@ -403,7 +404,8 @@ void trackgold() {
                             //std::cout << m.name.GetString() << ": " << m.value.GetString() << std::endl;
                         }
                         else {
-                            std::cout << m.name.GetString() << ": " << (double)m.value.GetDouble() << std::endl;
+                            double e = m.value.GetDouble();
+                            std::cout << m.name.GetString() << ": " << std::setprecision(2) << std::fixed << e << std::endl;
                         }
                     }
                 }
@@ -412,7 +414,7 @@ void trackgold() {
         std::cout << "\n";
         delete[] d;
         f.close();
-    } while (temp.compare("exit") != 0);
+    } while (date.compare("exit") != 0);
 }
 
 //main
