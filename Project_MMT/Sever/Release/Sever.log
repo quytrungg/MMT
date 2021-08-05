@@ -1,0 +1,9 @@
+﻿  Sever.cpp
+D:\Study\Project_MMT\Sever\Sever.cpp(63,10): warning C4101: 'recvbuf': unreferenced local variable
+D:\Study\Project_MMT\Sever\Sever.cpp(62,9): warning C4101: 'iSendResult': unreferenced local variable
+  Generating code
+  Previous IPDB not found, fall back to full compilation.
+D:\Study\Project_MMT\Sever\Sever.cpp(211): warning C4715: 'Sign_in': not all control paths return a value
+  All 232 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  Sever.vcxproj -> D:\Study\Project_MMT\Release\Sever.exe
