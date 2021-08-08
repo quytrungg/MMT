@@ -20,10 +20,10 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
-    <ProjectGuid>{47F89BD6-35C1-4379-BE2B-C53AE5560A30}</ProjectGuid>
+    <ProjectGuid>{E9BCE1ED-A9EA-4918-A3EC-4D25EB5978F3}</ProjectGuid>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <Keyword>ManagedCProj</Keyword>
-    <RootNamespace>Client</RootNamespace>
+    <RootNamespace>Server</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -78,7 +78,6 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessToFile>false</PreprocessToFile>
     </ClCompile>
     <Link>
       <AdditionalDependencies />
@@ -121,39 +120,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Help.cpp" />
-    <ClCompile Include="IP_Address.cpp" />
-    <ClCompile Include="Main_form.cpp" />
-    <ClCompile Include="Sign_in.cpp" />
-    <ClCompile Include="Sign_up.cpp" />
+    <ClCompile Include="Server_form.cpp" />
+    <ClCompile Include="Server_main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Help.h" />
-    <ClInclude Include="IP_Address.h">
-      <FileType>CppForm</FileType>
-    </ClInclude>
-    <ClInclude Include="Main_form.h">
-      <FileType>CppForm</FileType>
-    </ClInclude>
-    <ClInclude Include="Sign_in.h">
-      <FileType>CppForm</FileType>
-    </ClInclude>
-    <ClInclude Include="Sign_up.h">
+    <ClInclude Include="Server_form.h">
       <FileType>CppForm</FileType>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="IP_Address.resx">
-      <DependentUpon>IP_Address.h</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Main_form.resx">
-      <DependentUpon>Main_form.h</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Sign_in.resx">
-      <DependentUpon>Sign_in.h</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Sign_up.resx">
-      <DependentUpon>Sign_up.h</DependentUpon>
+    <EmbeddedResource Include="Server_form.resx">
+      <DependentUpon>Server_form.h</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

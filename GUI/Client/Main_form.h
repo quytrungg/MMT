@@ -1,13 +1,8 @@
 #pragma once
 
 #include "Main_form.h"
-#include <WinSock2.h>
-#include <Windows.h>
-#include <WS2tcpip.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <iostream>
-#include <string>
+#include "Help.h"
+
 
 
 namespace Client {
@@ -25,12 +20,12 @@ namespace Client {
 	public ref class Main_form : public System::Windows::Forms::Form
 	{
 	public:
-		int sign_in = -1;
+		int sign = -1;
 	private: System::Windows::Forms::Label^ label2;
 	private: System::Windows::Forms::DataGridView^ Data_Gold;
-	private: System::Windows::Forms::DataGridViewTextBoxColumn^ Kind;
-	private: System::Windows::Forms::DataGridViewTextBoxColumn^ Buy;
-	private: System::Windows::Forms::DataGridViewTextBoxColumn^ Sell;
+
+
+
 
 
 
@@ -38,6 +33,18 @@ namespace Client {
 
 
 	public:
+		int flag = 1;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^ Kind;
+	public:
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^ Buy;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^ Sell;
+
+	public:
+
+
+
+	public:
+
 
 		   SOCKET ConnectSocket = INVALID_SOCKET;
 	public:
@@ -49,11 +56,12 @@ namespace Client {
 			//
 		}
 
-		Main_form(SOCKET Connect, String^ user)
+		Main_form(SOCKET Connect, String^ user, int sign)
 		{
 			InitializeComponent();
 			Username->Text = user;
 			ConnectSocket = Connect;
+			flag = sign;
 			//
 			//TODO: Add the constructor code here
 			//
@@ -103,6 +111,7 @@ namespace Client {
 		/// </summary>
 		void InitializeComponent(void)
 		{
+			System::Windows::Forms::DataGridViewCellStyle^ dataGridViewCellStyle1 = (gcnew System::Windows::Forms::DataGridViewCellStyle());
 			this->Hi = (gcnew System::Windows::Forms::Label());
 			this->Username = (gcnew System::Windows::Forms::Label());
 			this->Date_Month_Year = (gcnew System::Windows::Forms::DateTimePicker());
@@ -121,22 +130,23 @@ namespace Client {
 			// Hi
 			// 
 			this->Hi->AutoSize = true;
-			this->Hi->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+			this->Hi->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->Hi->Location = System::Drawing::Point(476, 24);
+			this->Hi->Location = System::Drawing::Point(571, 11);
 			this->Hi->Name = L"Hi";
-			this->Hi->Size = System::Drawing::Size(24, 20);
+			this->Hi->Size = System::Drawing::Size(26, 20);
 			this->Hi->TabIndex = 0;
 			this->Hi->Text = L"Hi";
+			this->Hi->Click += gcnew System::EventHandler(this, &Main_form::Hi_Click);
 			// 
 			// Username
 			// 
 			this->Username->AutoSize = true;
-			this->Username->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+			this->Username->Font = (gcnew System::Drawing::Font(L"Mongolian Baiti", 14.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->Username->Location = System::Drawing::Point(519, 24);
+			this->Username->Location = System::Drawing::Point(603, 11);
 			this->Username->Name = L"Username";
-			this->Username->Size = System::Drawing::Size(57, 20);
+			this->Username->Size = System::Drawing::Size(61, 20);
 			this->Username->TabIndex = 1;
 			this->Username->Text = L"label1";
 			this->Username->Click += gcnew System::EventHandler(this, &Main_form::Username_Click);
@@ -149,7 +159,7 @@ namespace Client {
 			this->Date_Month_Year->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
 			this->Date_Month_Year->Format = System::Windows::Forms::DateTimePickerFormat::Custom;
-			this->Date_Month_Year->Location = System::Drawing::Point(74, 197);
+			this->Date_Month_Year->Location = System::Drawing::Point(25, 190);
 			this->Date_Month_Year->MaxDate = System::DateTime(2021, 12, 31, 0, 0, 0, 0);
 			this->Date_Month_Year->MinDate = System::DateTime(2021, 1, 1, 0, 0, 0, 0);
 			this->Date_Month_Year->Name = L"Date_Month_Year";
@@ -172,7 +182,7 @@ namespace Client {
 			// Kind_of_gold
 			// 
 			this->Kind_of_gold->FormattingEnabled = true;
-			this->Kind_of_gold->Location = System::Drawing::Point(74, 142);
+			this->Kind_of_gold->Location = System::Drawing::Point(25, 138);
 			this->Kind_of_gold->Name = L"Kind_of_gold";
 			this->Kind_of_gold->Size = System::Drawing::Size(175, 21);
 			this->Kind_of_gold->TabIndex = 4;
@@ -182,7 +192,7 @@ namespace Client {
 			// 
 			this->Log_out->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->Log_out->Location = System::Drawing::Point(604, 24);
+			this->Log_out->Location = System::Drawing::Point(626, 345);
 			this->Log_out->Name = L"Log_out";
 			this->Log_out->Size = System::Drawing::Size(75, 23);
 			this->Log_out->TabIndex = 5;
@@ -216,6 +226,7 @@ namespace Client {
 			// 
 			// Data_Gold
 			// 
+			this->Data_Gold->AllowUserToAddRows = false;
 			this->Data_Gold->AllowUserToDeleteRows = false;
 			this->Data_Gold->AllowUserToResizeColumns = false;
 			this->Data_Gold->ColumnHeadersHeightSizeMode = System::Windows::Forms::DataGridViewColumnHeadersHeightSizeMode::AutoSize;
@@ -225,24 +236,34 @@ namespace Client {
 			});
 			this->Data_Gold->Location = System::Drawing::Point(297, 121);
 			this->Data_Gold->Name = L"Data_Gold";
+			this->Data_Gold->ReadOnly = true;
 			this->Data_Gold->Size = System::Drawing::Size(343, 155);
 			this->Data_Gold->TabIndex = 8;
 			this->Data_Gold->CellContentClick += gcnew System::Windows::Forms::DataGridViewCellEventHandler(this, &Main_form::Data_Gold_CellContentClick);
 			// 
 			// Kind
 			// 
+			dataGridViewCellStyle1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Regular,
+				System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(0)));
+			this->Kind->DefaultCellStyle = dataGridViewCellStyle1;
 			this->Kind->HeaderText = L"Kind of gold";
 			this->Kind->Name = L"Kind";
+			this->Kind->ReadOnly = true;
+			this->Kind->SortMode = System::Windows::Forms::DataGridViewColumnSortMode::NotSortable;
 			// 
 			// Buy
 			// 
 			this->Buy->HeaderText = L"Buy";
 			this->Buy->Name = L"Buy";
+			this->Buy->ReadOnly = true;
+			this->Buy->SortMode = System::Windows::Forms::DataGridViewColumnSortMode::NotSortable;
 			// 
 			// Sell
 			// 
 			this->Sell->HeaderText = L"Sell";
 			this->Sell->Name = L"Sell";
+			this->Sell->ReadOnly = true;
+			this->Sell->SortMode = System::Windows::Forms::DataGridViewColumnSortMode::Programmatic;
 			// 
 			// Main_form
 			// 
@@ -258,9 +279,11 @@ namespace Client {
 			this->Controls->Add(this->Date_Month_Year);
 			this->Controls->Add(this->Username);
 			this->Controls->Add(this->Hi);
+			this->MaximizeBox = false;
 			this->Name = L"Main_form";
 			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
 			this->Text = L"Main_form";
+			this->FormClosed += gcnew System::Windows::Forms::FormClosedEventHandler(this, &Main_form::Main_form_Closed);
 			this->Load += gcnew System::EventHandler(this, &Main_form::Main_form_Load);
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->Data_Gold))->EndInit();
 			this->ResumeLayout(false);
@@ -272,16 +295,75 @@ namespace Client {
 		Kind_of_gold->Items->Add("SJC");
 		Kind_of_gold->Items->Add("DOJI");
 		Kind_of_gold->Items->Add("PNJ");
-		Data_Gold->Rows->Add(5);
+		Data_Gold->Rows->Add(6);
 	}
 	private: System::Void Search_Click(System::Object^ sender, System::EventArgs^ e) {
-		
+		int iResult;
+		String^ Gold = "";
+		String^ Date = "";
+		Gold = Kind_of_gold->Text;
+		if (Gold->Length == 0) {
+			MessageBox::Show("Please choose the kind of gold");
+			return;
+		}
+		Date = Date_Month_Year->Text;
+
+		char* gold = new char[Gold->Length + 1];
+		for (int i = 0; i < Gold->Length; i++) {
+			gold[i] = Gold[i];
+		}
+		gold[Gold->Length] = '\0';
+		iResult = send(ConnectSocket, gold, (int)strlen(gold), 0);
+
+		char* date = new char[Date->Length + 1];
+		for (int i = 0; i < Date->Length; i++) {
+			date[i] = Date[i];
+		}
+		date[Date->Length] = '\0';
+		iResult = send(ConnectSocket, date, (int)strlen(date), 0);
+
+		char respond[512];
+		memset(respond, 0, sizeof(respond));
+		iResult = recv(ConnectSocket, respond, sizeof(respond), 0);
+		if (strcmp(respond, "0") == 0) {
+			MessageBox::Show("Server don't have data in this day");
+			return;
+		}
+		int count = Convert_char_to_int(respond, 1);
+		for (int i = 0; i < 5; i++) {
+			Data_Gold->Rows[i]->Cells[0]->Value = "";
+			Data_Gold->Rows[i]->Cells[1]->Value = "";
+			Data_Gold->Rows[i]->Cells[2]->Value = "";
+		}
+		int i = 0;
+		while (i != count){
+
+			std::string temp_1 = Receive(ConnectSocket);
+			String^ name = gcnew System::String(temp_1.c_str());
+			Data_Gold->Rows[i]->Cells[0]->Value = name;
+
+			
+			std::string temp_2 = Receive(ConnectSocket);
+			String^ buy = gcnew System::String(temp_2.c_str());
+			Data_Gold->Rows[i]->Cells[1]->Value = buy;
+
+			
+			std::string temp_3 = Receive(ConnectSocket);
+			String^ sell = gcnew System::String(temp_3.c_str());
+			Data_Gold->Rows[i]->Cells[2]->Value = sell;
+			i++;
+		}
 	}
 	private: System::Void Log_out_Click(System::Object^ sender, System::EventArgs^ e) {
 		int iResult;
 		iResult = send(ConnectSocket, "close", sizeof("close"), 0);
-		iResult = send(ConnectSocket, "signin", sizeof("signin"), 0);
-		sign_in = 1;
+		if (flag == 1) {
+			iResult = send(ConnectSocket, "signin", sizeof("signin"), 0);
+		}
+		else {
+			iResult = send(ConnectSocket, "signup", sizeof("signup"), 0);
+		}
+		sign = 1;
 		Main_form::Hide();
 	}
 	private: System::Void Username_Click(System::Object^ sender, System::EventArgs^ e) {
@@ -295,6 +377,18 @@ namespace Client {
 private: System::Void Data_Gold_CellContentClick(System::Object^ sender, System::Windows::Forms::DataGridViewCellEventArgs^ e) {
 }
 private: System::Void label2_Click(System::Object^ sender, System::EventArgs^ e) {
+}
+private: System::Void Hi_Click(System::Object^ sender, System::EventArgs^ e) {
+}
+private: System::Void linkLabel1_LinkClicked(System::Object^ sender, System::Windows::Forms::LinkLabelLinkClickedEventArgs^ e) {
+}
+
+private: System::Void Main_form_Closed(System::Object^ sender, System::Windows::Forms::FormClosedEventArgs^ e) {
+	int iResult;
+	iResult = send(ConnectSocket, "close", sizeof("close"), 0);
+	Sleep(100);
+	iResult = send(ConnectSocket, "disconect", sizeof("disconect"), 0);
+	exit(0);
 }
 };
 }

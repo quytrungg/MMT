@@ -51,6 +51,7 @@ namespace Client {
 		}
 	private: System::Windows::Forms::TextBox^ IP;
 	private: System::Windows::Forms::Button^ Connect;
+	private: System::Windows::Forms::Label^ label1;
 	protected:
 
 	private:
@@ -66,8 +67,10 @@ namespace Client {
 		/// </summary>
 		void InitializeComponent(void)
 		{
+			System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(IP_Address::typeid));
 			this->IP = (gcnew System::Windows::Forms::TextBox());
 			this->Connect = (gcnew System::Windows::Forms::Button());
+			this->label1 = (gcnew System::Windows::Forms::Label());
 			this->SuspendLayout();
 			// 
 			// IP
@@ -77,11 +80,10 @@ namespace Client {
 				| System::Windows::Forms::AnchorStyles::Right));
 			this->IP->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 11.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->IP->Location = System::Drawing::Point(53, 101);
+			this->IP->Location = System::Drawing::Point(53, 135);
 			this->IP->Name = L"IP";
 			this->IP->Size = System::Drawing::Size(180, 24);
 			this->IP->TabIndex = 0;
-			this->IP->Text = L"Input the IP Address";
 			this->IP->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
 			this->IP->TextChanged += gcnew System::EventHandler(this, &IP_Address::IP_TextChanged);
 			// 
@@ -89,7 +91,7 @@ namespace Client {
 			// 
 			this->Connect->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 11.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->Connect->Location = System::Drawing::Point(90, 142);
+			this->Connect->Location = System::Drawing::Point(90, 176);
 			this->Connect->Name = L"Connect";
 			this->Connect->Size = System::Drawing::Size(102, 31);
 			this->Connect->TabIndex = 1;
@@ -97,18 +99,36 @@ namespace Client {
 			this->Connect->UseVisualStyleBackColor = true;
 			this->Connect->Click += gcnew System::EventHandler(this, &IP_Address::Connect_Click);
 			// 
+			// label1
+			// 
+			this->label1->AutoSize = true;
+			this->label1->BackColor = System::Drawing::Color::Transparent;
+			this->label1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(0)));
+			this->label1->ForeColor = System::Drawing::SystemColors::ActiveCaptionText;
+			this->label1->Location = System::Drawing::Point(53, 101);
+			this->label1->Name = L"label1";
+			this->label1->Size = System::Drawing::Size(180, 20);
+			this->label1->TabIndex = 2;
+			this->label1->Text = L"Input the IP Address";
+			// 
 			// IP_Address
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->AutoSizeMode = System::Windows::Forms::AutoSizeMode::GrowAndShrink;
+			this->BackColor = System::Drawing::SystemColors::ButtonHighlight;
+			this->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"$this.BackgroundImage")));
+			this->BackgroundImageLayout = System::Windows::Forms::ImageLayout::None;
 			this->ClientSize = System::Drawing::Size(284, 261);
+			this->Controls->Add(this->label1);
 			this->Controls->Add(this->Connect);
 			this->Controls->Add(this->IP);
+			this->Icon = (cli::safe_cast<System::Drawing::Icon^>(resources->GetObject(L"$this.Icon")));
 			this->MaximizeBox = false;
 			this->Name = L"IP_Address";
 			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
-			this->Text = L"IP_Address";
+			this->Text = L"IP Address";
 			this->Load += gcnew System::EventHandler(this, &IP_Address::IP_Address_Load);
 			this->ResumeLayout(false);
 			this->PerformLayout();
@@ -116,6 +136,7 @@ namespace Client {
 		}
 #pragma endregion
 	private: System::Void IP_Address_Load(System::Object^ sender, System::EventArgs^ e) {
+		
 	}
 	private: System::Void IP_TextChanged(System::Object^ sender, System::EventArgs^ e) {
 	}
@@ -124,7 +145,7 @@ namespace Client {
 
 		IP_Address = IP->Text;
 		if (IP_Address->Length == 0 || IP_Address->Equals("Input the IP Address")) {
-			MessageBox::Show("Please input the IP Adress");
+			MessageBox::Show("Please input the IP Adress","Error",MessageBoxButtons::OK,MessageBoxIcon::Question);
 			return;
 		}
 
@@ -155,7 +176,7 @@ namespace Client {
 
 		iResult = getaddrinfo(Address, DEFAULT_PORT, &hints, &result);
 		if (iResult != 0) {
-			MessageBox::Show("getaddrinfo failed with error ");
+			MessageBox::Show("Getaddrinfo failed with error ", "Error", MessageBoxButtons::OK, MessageBoxIcon::Error);
 			WSACleanup();
 			return;
 		}
@@ -166,7 +187,7 @@ namespace Client {
 			ConnectSocket = socket(ptr->ai_family, ptr->ai_socktype,
 				ptr->ai_protocol);
 			if (ConnectSocket == INVALID_SOCKET) {
-				MessageBox::Show("socket failed with error");
+				MessageBox::Show("Socket failed with error", "Error", MessageBoxButtons::OK, MessageBoxIcon::Error);
 				WSACleanup();
 			}
 
@@ -183,16 +204,19 @@ namespace Client {
 		freeaddrinfo(result);
 
 		if (ConnectSocket == INVALID_SOCKET) {
-			MessageBox::Show("Unable to connect to server");
+			MessageBox::Show("Unable to connect to server", "Error", MessageBoxButtons::OK, MessageBoxIcon::Asterisk);
 			WSACleanup();
 			return;
 		}
 		else {
-			MessageBox::Show("Connect success");
+			MessageBox::Show("Connect success", "Success", MessageBoxButtons::OK);
 			IP_Address::Hide();
 			Sign_up^ signup = gcnew Sign_up(ConnectSocket);
 			signup->ShowDialog();
 		}
+	}
+	private: System::Void Form_Closing(System::Object^ sender, System::Windows::Forms::FormClosingEventArgs^ e) {
+		
 	}
 	};
 }
